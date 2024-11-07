@@ -1,23 +1,22 @@
-  interface Post {
-  id: string,
-  title: string,
-  body: string
-}
+interface Id {
+  id: string | number | symbol;
+};
 
-type ById = Record<Post['id'], Post>;
+type ById<T extends Id> = Record<T['id'], T>;
 
-interface NormalizedPost {
-  byId: ById,
-  allIds: Array<Post['id']>;
-}
+interface NormalizedData<T extends Id> {
+  byId: ById<T>,
+  allIds: Array<T['id']>;
+};
 
 
-export const normalizeData = (unnormalizedData: Array<Post>): NormalizedPost => {
-    const obj: NormalizedPost = {byId: {}, allIds: []}
+export const normalizeData = <T extends Id>(unnormalizedData: Array<T>): NormalizedData<T> => {
+    const obj: NormalizedData<T> = {byId: {} as ById<T>, allIds: []}
     return unnormalizedData.reduce((acc, cur) => {
-      if (!acc.byId.hasOwnProperty(cur.id)) {
-        acc.byId[cur.id] = cur;
-        acc.allIds.push(cur.id);
+      const id = cur.id as T['id'];
+      if (!(id in acc.byId)) {
+        acc.byId[id] = cur;
+        acc.allIds.push(id);
       }
       return acc
     }, obj);
